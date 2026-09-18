@@ -1,0 +1,10 @@
+# Local machine state — never publish
+.chrome-profile/
+.playwright-cli/
+__pycache__/
+*.pyc
+
+# Fork build artifacts and upstream recordings
+jev-browser-fork/node_modules/
+jev-browser-fork/jev-browser-record-*/
+jev-browser-fork/assets/

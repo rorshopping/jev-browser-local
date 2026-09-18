@@ -1,0 +1,31 @@
+# Changelog
+
+## 0.4.0
+
+- Recording support: `--record <path.webm|dir>` on the CLI and `recordDir` on `navigate()` capture a video of the page; results include `video_path` and per-step `t_ms` timestamps.
+- OpenRouter typing default moved to `google/gemini-2.5-flash-lite`: `openai/gpt-5.6-luna` returns empty output through OpenRouter for short prompts (5/5 in testing), and the Gemini default is faster and cheaper than the alternatives measured.
+
+## 0.3.0
+
+- Cloudflare Workers AI support: with `CLOUDFLARE_API_TOKEN` (or `JEV_CLOUDFLARE_API_TOKEN`) and `CLOUDFLARE_ACCOUNT_ID` set, judgments run through Cloudflare at the `typesafe/jev` alias; `JEV_PROVIDER=cloudflare` forces it. Usage tokens are reported on every call.
+- Vercel AI Gateway support: with `AI_GATEWAY_API_KEY` set, judgments run through the AI SDK evaluate API at `typesafe-ai/jev`; `JEV_PROVIDER=vercel` forces it. Noul, choice, and score answers are adapted back to this package's shapes, with TypeSafe confidence included.
+- Provider resolution order: TypeSafe direct, OpenRouter, Cloudflare, Vercel.
+- Internal fix: transport branches are explicitly guarded per provider.
+
+## 0.2.0
+
+- OpenRouter support: with only an `OPENROUTER_API_KEY`, Jev judgments route through OpenRouter's Decisions API (alpha), so one OpenRouter key can power the entire package, typing included. `JEV_PROVIDER` forces `typesafe` or `openrouter`; `jev-latest` maps to `typesafe/jev-1.13` on OpenRouter.
+- Results now report the transport used (`jev_provider`, resolved `model`).
+
+## 0.1.0
+
+Initial release, published to npm as `@jkudish/jev-browser` (the unscoped `jev-browser` name belongs to another project).
+
+- `jev_navigate` MCP tool: task plus start URL in, final page plus step trace, captured console and network errors, usage and estimated cost, and a final screenshot out.
+- One primary Jev call per step: an action Choice over up to 240 page elements plus scroll, back, and done; a goal judgment; a stuck judgment. A select action adds one second-stage Choice for its option.
+- Stop gates run before action execution: agent `done`, goal probability, stuck probability, step budget (24), time budget (180 s), caller cancellation.
+- Typing cascade through the Vercel AI SDK: OpenAI, OpenRouter, Anthropic, Google, or any OpenAI-compatible endpoint, with a keyword fallback that is labeled in the trace.
+- CLI (`jev-browser run`) and library import (`dist/navigate.js`) alongside the MCP server.
+- Page payload formats: text, markdown, html, aria snapshot, with per-format caps and truncation flags.
+
+No versioning policy has been declared yet; treat 0.x APIs as unstable.

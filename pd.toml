@@ -1,0 +1,9 @@
+# parallel-decisions settings for local_jev_server.py
+# (the server also passes explicit kwargs; this file documents the intended setup)
+backend = "torch"
+model = "Qwen/Qwen2.5-0.5B-Instruct"
+torch_device = "cuda"
+torch_dtype = "float16"
+cuda_graph = false          # off by default; see GPU_SETUP.md before enabling
+max_fields_per_batch = 8
+lock_timeout_s = 120

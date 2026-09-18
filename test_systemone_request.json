@@ -1,0 +1,44 @@
+{
+  "model": "jev-latest",
+  "state": {
+    "task": "Find the Wikipedia article about Espresso and stop when you are on that article",
+    "current_page": {
+      "url": "https://en.wikipedia.org/wiki/Coffee",
+      "title": "Coffee - Wikipedia"
+    },
+    "page_text_excerpt": "Coffee is a brewed drink prepared from roasted coffee beans, the seeds of berries from certain flowering plants in the Coffea genus.",
+    "interactive_elements": [
+      { "id": "e1", "description": "a \"Espresso\" -> en.wikipedia.org/wiki/Espresso" },
+      { "id": "e2", "description": "a \"Coffee preparation\" -> en.wikipedia.org/wiki/Coffee_preparation" }
+    ],
+    "history": []
+  },
+  "questions": {
+    "action": {
+      "type": "choice",
+      "instructions": "Which single action best advances the task on the current page?",
+      "criteria": {
+        "click_e1": "a \"Espresso\" -> en.wikipedia.org/wiki/Espresso",
+        "click_e2": "a \"Coffee preparation\" -> en.wikipedia.org/wiki/Coffee_preparation",
+        "scroll_down": "Scroll down one screen to reveal more of the page",
+        "done": "The task is already complete; stop here"
+      }
+    },
+    "goal_done": {
+      "type": "noul",
+      "instructions": "The task's goal has been achieved: the current page and history show the sought outcome",
+      "criteria": {
+        "true": "The page being viewed is the sought destination or shows the sought information",
+        "false": "The goal is not yet achieved"
+      }
+    },
+    "stuck": {
+      "type": "noul",
+      "instructions": "The actions so far are not making progress toward the task (repeats, loops, or no change)",
+      "criteria": {
+        "true": "Recent actions repeat or nothing changes; a different strategy is needed",
+        "false": "Progress is visible or the first steps are still reasonable"
+      }
+    }
+  }
+}

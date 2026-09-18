@@ -1,0 +1,10 @@
+{
+  "model": "qwen2.5-0.5b-local",
+  "messages": [
+    {
+      "role": "user",
+      "content": "A browser agent is performing this task: \"Search Wikipedia for the espresso-based drink called Ristretto and stop when you are on that article\". It must type into the search box on https://en.wikipedia.org/wiki/Main_Page. Reply with ONLY the exact text to type (for a search box: a short search query; no quotes, no explanation)."
+    }
+  ],
+  "max_tokens": 48
+}
