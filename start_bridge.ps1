@@ -7,9 +7,10 @@
   endpoint) from the local parallel-decisions engine. Blocks while serving, so
   run it in a background terminal or as a background process.
 
-  Uses the gpu worktree venv with the engine fixes (chunked prefill + trie
-  collision scoring). Loads the 1.5B decision model by default; the 0.5B typing
-  model is loaded only when VRAM headroom allows (see --typing).
+  Uses the gpu venv, whose editable install resolves the engine from the
+  parallel-decisions main checkout (chunked prefill + trie collision scoring
+  merged upstream 2026-09-20). Loads the 1.5B decision model by default; the
+  0.5B typing model is loaded only when VRAM headroom allows (see --typing).
 
 .EXAMPLE
   .\start_bridge.ps1                 # 1.5B decisions + typing when VRAM allows
@@ -26,8 +27,6 @@ param(
 $ErrorActionPreference = "Stop"
 $project = Split-Path -Parent $MyInvocation.MyCommand.Path
 $venv = "C:\Users\Richard\Documents\Projects\parallel-decisions_wt\gpu\.venv\Scripts\python.exe"
-$engineSrc = "C:\Users\Richard\Documents\Projects\parallel-decisions_wt\chunked-prefill\src"
-$env:PYTHONPATH = $engineSrc
 
 $serverArgs = @((Join-Path $project "local_jev_server.py"), "--port", $Port, "--model", $Model)
 if ($NoTyping) { $serverArgs += "--no-typing" }

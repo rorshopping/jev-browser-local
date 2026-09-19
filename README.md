@@ -32,10 +32,10 @@ jev-browser run "Search Wikipedia for the espresso-based drink called Ristretto
 Run artifacts (JSON traces, screenshots) live in `runs/`.
 
 > Paths note: absolute paths in the commands below are from the development
-> machine (Python venv under `parallel-decisions_wt/gpu`, engine checkout under
-> `parallel-decisions_wt/chunked-prefill`). Adjust them for your setup — the
-> bridge is a single self-contained Python file plus a CUDA venv with
-> `parallel-decisions[torch]`.
+> machine (Python venv under `parallel-decisions_wt/gpu`, engine checkout at
+> `parallel-decisions`, installed editable into that venv). Adjust them for
+> your setup — the bridge is a single self-contained Python file plus a CUDA
+> venv with `parallel-decisions[torch]`.
 
 | Component | Role |
 | --- | --- |
@@ -158,7 +158,7 @@ Result: ~1 500-token prompts, **~0.4 s (0.5B) / ~1 s (1.5B) per decision**, and 
 completed 3-step run above in 5.9 s. Tune downward (e.g. 24) on very dense pages,
 upward when the right element is being pruned away.
 
-> **Update:** the engine's long-prompt bottleneck is fixed on a branch (see
+> **Update:** the engine's long-prompt bottleneck is fixed and merged (see
 > "Engine fix" below) — the full 240-choice space now decides in ~1.3 s instead of
 > 126 s. Pruning is still the default because the 1.5B model picks poorly when
 > offered 240 options (measured: it fixates on the "Appearance" checkbox), not
@@ -178,7 +178,7 @@ the TypeSafe contract onto a local 0.5–1.5B model failed in a reproducible way
 | **Deterministic goal gate** | The engine's boolean heads are unusable with Qwen2.5-1.5B (trivial true/false probes return 0.44–0.62 with no discrimination), so the *choice* head drives actions and code decides "goal reached" when a distinctive task token appears in the page title/URL (`--no-goal-title-match` turns this off). |
 | **Typing label-echo guard** | The 0.5B typing model tends to echo the field label ("Search Wikipedia") instead of the value; the adapter strips label echoes and falls back to the proper noun. |
 
-## Engine fix: chunked prefill + trie collision scoring (branch `feat/torch-chunked-prefill`)
+## Engine fix: chunked prefill + trie collision scoring (merged)
 
 The prefill measurements above led to a root cause: on GPUs without an efficient
 SDPA kernel (Turing and older — this RTX 2060 SUPER included), `math` is the only
@@ -193,11 +193,13 @@ row per candidate through the prefix cache — 248 rows in 33 batched passes at
 240 choices. It now scores a **trie** of the candidate sequences: only nodes with
 children get a row (~25 rows / 4 passes), with the same summed log-probabilities.
 
-Worktree branch `parallel-decisions_wt/chunked-prefill` — **not merged** — two commits:
+Merged into parallel-decisions `main` on 2026-09-20 (`main` at `4582032`); two
+commits:
 
 - `1a249c7` chunked prefill (`torch_prefill_chunk`, default 2048, `PD_TORCH_PREFILL_CHUNK`, 0 disables)
 - `4582032` trie-batched collision scoring (+ device-side candidate slicing)
-- Full suite green: **234 passed, 3 skipped**; a new equivalence test pins the
+- Full suite green: **234 passed, 3 skipped** (re-verified 2026-09-20 on the
+  merged `main`); a new equivalence test pins the
   trie log-probabilities against the element-wise implementation within 1e-5.
 
 | Measurement (Qwen2.5-0.5B fp16) | Before | After |
@@ -207,11 +209,11 @@ Worktree branch `parallel-decisions_wt/chunked-prefill` — **not merged** — t
 | Unpruned 240-option e2e, 10 steps | 49.9 s | **22.2 s** (`run-optimized-240.json`; model still wanders) |
 | Pruned e2e, Ristretto task | 5.9 s run | **4.1 s, goal_achieved** (`run-optimized-pruned.json`) |
 
-To use the patched engine before merging, point `PYTHONPATH` at the worktree when
-starting the bridge:
+The gpu venv resolves the engine through its editable install of the
+parallel-decisions main checkout, so the bridge picks the fix up with no extra
+configuration:
 
 ```powershell
-$env:PYTHONPATH = "C:\Users\Richard\Documents\Projects\parallel-decisions_wt\chunked-prefill\src"
 & "...\parallel-decisions_wt\gpu\.venv\Scripts\python.exe" local_jev_server.py --port 8768 --model "Qwen/Qwen2.5-1.5B-Instruct"
 ```
 
